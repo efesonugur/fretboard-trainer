@@ -3,6 +3,7 @@ import random
 import time
 import os
 import platform
+import sys
 from typing import List, Sequence
 
 STRINGS: List[int] = [1, 2, 3, 4, 5, 6]
@@ -13,11 +14,12 @@ DEFAULT_TIME = 10  # seconds
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Guitar fingerboard trainer")
+    p = argparse.ArgumentParser(description="Guitar fretboard trainer")
     p.add_argument(
         "--auto",
         nargs="?",
         type=int,
+        metavar="SECONDS",
         const=DEFAULT_TIME,
         help="run automatically every N seconds",
     )
@@ -29,7 +31,25 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--string", type=int, help="practice a specific string [1-6]")
     p.add_argument("--note", type=str, help="practice a specific note (e.g., C, F#)")
 
-    return p.parse_args()
+    p.add_argument(
+        "--preset",
+        nargs="?",
+        type=int,
+        metavar="SECONDS",
+        const=DEFAULT_TIME,
+        help="preset mode: cycle through the circle of fifths on each string (must be used alone)",
+    )
+    
+    args = p.parse_args()
+
+    if args.preset is not None:
+        conflicting_flags = {"--auto", "--accidentals", "--string", "--note"}
+        used_conflicts = [tok for tok in sys.argv[1:] if tok in conflicting_flags]
+
+        if used_conflicts:
+            p.error(f"--preset cannot be combined with: {', '.join(used_conflicts)}")
+
+    return args
 
 
 def clear() -> None:
@@ -50,8 +70,6 @@ def choose_prompt(args: argparse.Namespace) -> tuple[int, str]:
 
 
 def run_auto(args: argparse.Namespace) -> None:
-    print("Ctrl + C to quit.")
-    time.sleep(1.0)
     buffer = max(0, args.auto)
     # keep steady cadence using monotonic time
     next_tick = time.monotonic()
@@ -59,6 +77,7 @@ def run_auto(args: argparse.Namespace) -> None:
         clear()
         s, n = choose_prompt(args)
         print(f"String: {s}, Note: {n}")
+        print("\nCtrl + C to quit.")
         next_tick += buffer
         time.sleep(max(0.0, next_tick - time.monotonic()))
 
@@ -73,13 +92,31 @@ def run_manual(args: argparse.Namespace) -> None:
         if choice in {"q", "quit", "exit"}:
             print("Stopped.")
             return
+        
+
+def run_preset(args: argparse.Namespace) -> None:
+    buffer = max(0, args.preset)
+    next_tick = time.monotonic()
+    index = 5
+    n = NOTES[index]
+    while True:
+        for i in range(1, 7):
+            clear()
+            print(f"String: {i}, Note: {n}")
+            print("\nCtrl + C to quit.")
+            next_tick += buffer
+            time.sleep(max(0.0, next_tick - time.monotonic()))
+        index = (index + 7) % len(NOTES)
+        n = NOTES[index]
 
 
 def main() -> None:
     args = parse_args()
 
     try:
-        if args.auto:
+        if args.preset is not None:
+            run_preset(args)
+        elif args.auto is not None:
             run_auto(args)
         else:
             run_manual(args)
