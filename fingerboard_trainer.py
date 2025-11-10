@@ -97,8 +97,8 @@ def run_manual(args: argparse.Namespace) -> None:
 def run_preset(args: argparse.Namespace) -> None:
     buffer = max(0, args.preset)
     next_tick = time.monotonic()
-    index = 5
-    n = NOTES[index]
+    index = 3
+    n = NOTES_NATURAL[index]
     while True:
         for i in range(1, 7):
             clear()
@@ -106,8 +106,8 @@ def run_preset(args: argparse.Namespace) -> None:
             print("\nCtrl + C to quit.")
             next_tick += buffer
             time.sleep(max(0.0, next_tick - time.monotonic()))
-        index = (index + 7) % len(NOTES)
-        n = NOTES[index]
+        index = (index + 4) % len(NOTES_NATURAL)
+        n = NOTES_NATURAL[index]
 
 
 def main() -> None:
