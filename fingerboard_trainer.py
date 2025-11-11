@@ -1,19 +1,22 @@
+import os
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+os.environ.setdefault("SDL_AUDIODRIVER", "pulseaudio")
+
+import warnings
+warnings.filterwarnings("ignore", module="pygame.pkgdata")
+
 import argparse
 import random
 import time
-import os
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import platform
 import sys
 from typing import List, Sequence
-import warnings
-warnings.filterwarnings("ignore", module="pygame.pkgdata")
-import pygame
+
+import pygame # pylint: disable=C0413
 
 # audio stuff
 # ------------------------------------------------------------------------------------------
 def init_audio(wav_path: str):
-    os.environ.setdefault("SDL_AUDIODRIVER", "pulseaudio")
     pygame.mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=512)
     pygame.init()
     pygame.mixer.init()
