@@ -12,7 +12,7 @@ import platform
 import sys
 from typing import List, Sequence
 
-import pygame # pylint: disable=C0413
+import pygame
 
 # audio stuff
 # ------------------------------------------------------------------------------------------
