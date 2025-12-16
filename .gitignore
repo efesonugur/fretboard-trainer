@@ -2,3 +2,9 @@
 .ruff_cache
 .mypy_cache
 .vscode/*
+
+build/
+*.egg-info/
+
+__pycache__/
+*.pyc
